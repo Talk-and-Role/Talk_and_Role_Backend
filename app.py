@@ -65,7 +65,7 @@ async def convert_speech_to_text(file: UploadFile = File(...)):
     return {"transcription": transcription}
 
 class TextEvaluationRequest(BaseModel):
-    text: str
+    text: list
 
 # TTS 변환
 tts_converter = TextToSpeechConverter(tts_subscription_key, service_region)
@@ -127,10 +127,11 @@ async def test_evaluate_text(request: TextEvaluationRequest, pronunciation_score
         history.append({"role":"user", "content":[{"type":"text","text":request.text}]})
         evaluation_text = history
         # print(evaluation_text)
-        completion = gpt_evaluator.test_evaluate_text(evaluation_text)
+        completion = gpt_evaluator.test_evaluate_text(request.text)
         next_npc_conversation = ""
 
         history.append({"role":"assistant", "content":[{"type":"text","text":completion.to_json()}]})
+        print(completion)
         _next = json.loads(completion.choices[0].message.content)
 
         # print(_next)
